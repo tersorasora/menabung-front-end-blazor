@@ -1,7 +1,25 @@
 ﻿@page "/"
+@using Microsoft.VisualBasic
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 <h4>Welcome to your new app.</h4>
+
+@code {
+    @* check if user hasn't login, then navigated to login page *@
+    protected override async Task OnInitializedAsync()
+    {
+        // ✅ Check token in browser localStorage
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "token");
+
+        if (string.IsNullOrEmpty(token))
+        {
+            // ✅ Redirect to login if token missing
+            Navigation.NavigateTo("/login", forceLoad: true);
+        }
+    }
+}

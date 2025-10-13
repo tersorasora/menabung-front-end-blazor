@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@inject AuthService Auth
+@inject NavigationManager Nav
 @using System.Net.Http
 @inject HttpClient Http
 @* @rendermode InteractiveServer *@
@@ -14,7 +16,19 @@
         </div>
 
         <article class="content px-4">
-            @Body
+            @if (isChecking)
+            {
+                <p>Checking authentication...</p>
+            }
+            else if (!isAuthenticated)
+            {
+                @* Redirecting to login *@
+                Nav.NavigateTo("/login", forceLoad: true);
+            }
+            else
+            {
+                @Body
+            }
         </article>
     </main>
 </div>
@@ -28,6 +42,8 @@
 
 @code {
     private string nickname = "Guest";
+    private bool isAuthenticated;
+    private bool isChecking = true;
 
     private async Task FetchNickname(){
         try{
@@ -46,5 +62,11 @@
             Console.WriteLine($"Error fetching nickname: {ex.Message}");
             nickname = "Guest";
         }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await Auth.IsAuthenticatedAsync();
+        isChecking = false;
     }
 }

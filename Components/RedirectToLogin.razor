@@ -1,0 +1,40 @@
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+@code {
+    private bool _initialized;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Wait until the app is interactive
+        if (firstRender)
+        {
+            // Skip JS calls during prerender
+            if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+            {
+                // This code runs on server-side prerender; skip it
+                return;
+            }
+
+            await CheckTokenAsync();
+            _initialized = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CheckTokenAsync()
+    {
+        try
+        {
+            var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+            if (string.IsNullOrEmpty(token))
+            {
+                Navigation.NavigateTo("/login", forceLoad: true);
+            }
+        }
+        catch
+        {
+            // JS not yet available — safe to ignore
+        }
+    }
+}
