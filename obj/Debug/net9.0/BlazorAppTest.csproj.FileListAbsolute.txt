@@ -158,3 +158,4 @@ C:\Jobs\BlazorAppTest\obj\Debug\net9.0\scopedcss\Components\Layout\NoLayout.razo
 C:\Jobs\BlazorAppTest\obj\Debug\net9.0\scopedcss\Components\Auths\Register.razor.rz.scp.css
 C:\Jobs\BlazorAppTest\obj\Debug\net9.0\compressed\dk5ghosxoe-huxn6nieak.gz
 C:\Jobs\BlazorAppTest\obj\Debug\net9.0\compressed\jopx69bi95-huxn6nieak.gz
+C:\Jobs\BlazorAppTest\obj\Debug\net9.0\BlazorAppTest.sourcelink.json

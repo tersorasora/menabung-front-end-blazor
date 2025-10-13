@@ -3,6 +3,7 @@
 @using System.Net.Http
 @using BlazorAppTest.Components.Layout
 @inject HttpClient Http
+@inject NavigationManager Navigation
 @rendermode InteractiveServer
 
 <PageTitle>Register</PageTitle>
@@ -25,8 +26,10 @@
                 <input @bind-value="registerModel.Password" type="password" placeholder="Password" class="input-field" />
             </div>
 
-            <button type="submit" class="btn-register">Register</button>
+            <button type="submit" class="btn-register">Sign Up</button>
         </EditForm>
+
+        <a href="/login">Already have an account?</a>
 
         @if (!string.IsNullOrEmpty(message))
         {
@@ -54,6 +57,9 @@
         {
             var result = await response.Content.ReadFromJsonAsync<RegisterResult>();
             message = $"Registration successful! Message: {result?.Message}";
+
+            @* Move to login page *@
+            Navigation.NavigateTo("/login");
         }
         else
         {
