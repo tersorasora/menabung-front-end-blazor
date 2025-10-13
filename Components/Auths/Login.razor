@@ -2,6 +2,8 @@
 @layout NoLayout
 @using System.Net.Http
 @using BlazorAppTest.Components.Layout
+@inject IJSRuntime JS
+@inject AuthService Auth
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
@@ -53,8 +55,23 @@
             var result = await response.Content.ReadFromJsonAsync<LoginResult>();
             message = "Login Successful!";
 
-            @* Move to home page *@
-            Navigation.NavigateTo("/");
+            if (result is not null && !string.IsNullOrEmpty(result.Token))
+            {
+                // save token in browser localStorage
+                await JS.InvokeVoidAsync("localStorage.setItem", "token", result.Token);
+
+                message = "Login Successful! Redirecting...";
+                
+                // delay for user to see the message
+                await Task.Delay(1000);
+
+                // Redirect to home
+                Navigation.NavigateTo("/", forceLoad: true);
+            }
+            else
+            {
+                message = "Login succeeded but no token was returned!";
+            }
         }
         else
         {

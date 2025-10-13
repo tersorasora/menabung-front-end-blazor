@@ -156,6 +156,6 @@ c:\Jobs\BlazorAppTest\bin\Debug\net9.0\tasks.json
 C:\Jobs\BlazorAppTest\obj\Debug\net9.0\scopedcss\Components\Auths\Login.razor.rz.scp.css
 C:\Jobs\BlazorAppTest\obj\Debug\net9.0\scopedcss\Components\Layout\NoLayout.razor.rz.scp.css
 C:\Jobs\BlazorAppTest\obj\Debug\net9.0\scopedcss\Components\Auths\Register.razor.rz.scp.css
-C:\Jobs\BlazorAppTest\obj\Debug\net9.0\compressed\dk5ghosxoe-huxn6nieak.gz
-C:\Jobs\BlazorAppTest\obj\Debug\net9.0\compressed\jopx69bi95-huxn6nieak.gz
 C:\Jobs\BlazorAppTest\obj\Debug\net9.0\BlazorAppTest.sourcelink.json
+C:\Jobs\BlazorAppTest\obj\Debug\net9.0\compressed\dk5ghosxoe-474hzu50pr.gz
+C:\Jobs\BlazorAppTest\obj\Debug\net9.0\compressed\jopx69bi95-474hzu50pr.gz
