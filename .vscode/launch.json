@@ -1,0 +1,17 @@
+{
+    "version": "0.1.0",
+    "configurations": [
+        {
+            "name": "C#: Client",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}\\BlazorAppTest.csproj",
+        }
+    ],
+    "compounds": [
+        {
+            "name": "All",
+            "configurations": "C# Client"
+        }
+    ]
+}
