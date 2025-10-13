@@ -159,3 +159,10 @@ C:\Jobs\BlazorAppTest\obj\Debug\net9.0\scopedcss\Components\Auths\Register.razor
 C:\Jobs\BlazorAppTest\obj\Debug\net9.0\BlazorAppTest.sourcelink.json
 C:\Jobs\BlazorAppTest\obj\Debug\net9.0\compressed\dk5ghosxoe-474hzu50pr.gz
 C:\Jobs\BlazorAppTest\obj\Debug\net9.0\compressed\jopx69bi95-474hzu50pr.gz
+C:\Jobs\BlazorAppTest\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Jobs\BlazorAppTest\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Jobs\BlazorAppTest\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
+C:\Jobs\BlazorAppTest\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
+C:\Jobs\BlazorAppTest\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Jobs\BlazorAppTest\obj\Debug\net9.0\BlazorAppTest.csproj.AssemblyReference.cache
+C:\Jobs\BlazorAppTest\obj\Debug\net9.0\BlazorAp.262F2729.Up2Date
