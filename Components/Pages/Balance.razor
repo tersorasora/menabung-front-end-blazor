@@ -3,6 +3,7 @@
 @using System.Net.Http
 @using BlazorAppTest.Components.Layout
 @using System.Text.Json
+@using Microsoft.AspNetCore.Mvc
 @using Microsoft.VisualBasic
 @inject IJSRuntime JS
 @inject HttpClient Http
@@ -27,15 +28,15 @@
     {
         @foreach (var t in transactions)
         {
-            <div class="card mb-3 shadow-sm border-0" style="border-left: 5px solid @(t.Type == "Deposit" ? "#28a745" : "#dc3545");">
-                <div class="card-body">
+            <div class="card mb-3 shadow-sm border-0" style="border-left: 5px solid @(t.Type == "deposit" ? "#28a745" : "#dc3545");">
+                <div class="card-body border @(t.Type == "deposit" ? "border-success" : "border-danger") border-2">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="fw-bold mb-1">@t.Description</h6>
-                            <small class="text-muted">@t.Date.ToString("dd MMM yyyy, HH:mm")</small>
+                            <small class="text-muted">@t.Date.ToString("dd-MM-yyyy")</small>
                         </div>
                         <div class="text-end">
-                            <span class="badge @(t.Type == "Deposit" ? "bg-success" : "bg-danger")">@t.Type</span><br />
+                            <span class="badge @(t.Type == "deposit" ? "bg-success" : "bg-danger")">@t.Type</span><br />
                             <span class="fw-bold">
                                 @(t.Type == "Deposit" ? "+" : "-")
                                 @t.Nominal.ToString("C", new System.Globalization.CultureInfo("id-ID"))
@@ -67,11 +68,10 @@
         var payloadJson = System.Text.Encoding.UTF8.GetString(ParseBase64WithoutPadding(parts[1]));
         var payload = System.Text.Json.JsonDocument.Parse(payloadJson);
         var userID = payload.RootElement.GetProperty("sub").ToString();
-        Console.WriteLine($"Decoded userID from token: {userID}");
 
         try{
             await FetchBalance(userID);
-            loadTemp();
+            await FetchTransactions(userID);
         }catch(Exception ex){
             Console.WriteLine($"Error during initialization: {ex.Message}");
         }
@@ -86,11 +86,30 @@
 
             var json = await response.Content.ReadFromJsonAsync<JsonElement>();
             currentBalance = json.GetProperty("balance").GetDouble();
-            Console.WriteLine($"Balance fetched: {currentBalance}");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error fetching balance: {ex.Message}");
+        }
+    }
+
+    private async Task FetchTransactions(string? userID){
+        try{
+            var response = await Http.GetAsync($"transaction/byid/{userID}");
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadFromJsonAsync<JsonElement>();
+            
+            if(json.TryGetProperty("transaction", out var transactionsJson)){
+                transactions = transactionsJson.EnumerateArray().Select(t => new Transactions {
+                    Description = t.GetProperty("description").GetString() ?? string.Empty,
+                    Type = t.GetProperty("transaction_type").GetString() ?? string.Empty,
+                    Nominal = t.GetProperty("transaction_nominal").GetDouble(),
+                    Date = t.GetProperty("transaction_date").GetDateTime()
+                }).ToList();
+            }
+        }catch(Exception ex){
+            Console.WriteLine($"Error fetching transactions: {ex.Message}");
         }
     }
 
