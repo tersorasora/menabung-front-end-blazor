@@ -2,10 +2,123 @@
 
 @using System.Net.Http
 @using BlazorAppTest.Components.Layout
+@using System.Text.Json
+@using Microsoft.VisualBasic
+@inject IJSRuntime JS
 @inject HttpClient Http
 
 <PageTitle>Balance</PageTitle>
 
-<div>
-    <h3>Balance</h3>
+<PageTitle>Balance</PageTitle>
+
+<div class="container mt-4">
+    <div class="card shadow-sm p-3 mb-4">
+        <h3 class="card-title mb-2">Your Balance</h3>
+        <h4 class="text-success fw-bold">@currentBalance.ToString("C", new System.Globalization.CultureInfo("id-ID"))</h4>
+    </div>
+
+    <h5 class="mb-3">Recent Transactions</h5>
+
+    @if (transactions.Count == 0)
+    {
+        <p class="text-muted">No transactions yet.</p>
+    }
+    else
+    {
+        @foreach (var t in transactions)
+        {
+            <div class="card mb-3 shadow-sm border-0" style="border-left: 5px solid @(t.Type == "Deposit" ? "#28a745" : "#dc3545");">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1">@t.Description</h6>
+                            <small class="text-muted">@t.Date.ToString("dd MMM yyyy, HH:mm")</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge @(t.Type == "Deposit" ? "bg-success" : "bg-danger")">@t.Type</span><br />
+                            <span class="fw-bold">
+                                @(t.Type == "Deposit" ? "+" : "-")
+                                @t.Nominal.ToString("C", new System.Globalization.CultureInfo("id-ID"))
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
 </div>
+
+@code {
+    private double currentBalance = 0.0f;
+    private List<Transactions> transactions = new List<Transactions>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "token");
+
+        if(string.IsNullOrEmpty(token)){
+            Console.WriteLine("No Token Found");
+            currentBalance = 0.0f;
+            return;
+        }
+
+        // Decode payload from JWT to get userID
+        var parts = token.Split('.');
+        var payloadJson = System.Text.Encoding.UTF8.GetString(ParseBase64WithoutPadding(parts[1]));
+        var payload = System.Text.Json.JsonDocument.Parse(payloadJson);
+        var userID = payload.RootElement.GetProperty("sub").ToString();
+        Console.WriteLine($"Decoded userID from token: {userID}");
+
+        try{
+            await FetchBalance(userID);
+            loadTemp();
+        }catch(Exception ex){
+            Console.WriteLine($"Error during initialization: {ex.Message}");
+        }
+    }
+
+    private async Task FetchBalance(string? userID)
+    {
+        try
+        {
+            var response = await Http.GetAsync($"user/balance/{userID}");
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadFromJsonAsync<JsonElement>();
+            currentBalance = json.GetProperty("balance").GetDouble();
+            Console.WriteLine($"Balance fetched: {currentBalance}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching balance: {ex.Message}");
+        }
+    }
+
+    private void loadTemp(){
+        transactions = new List<Transactions>
+        {
+            new Transactions { Description = "Top-up from Bank BCA", Type = "Deposit", Nominal = 150000, Date = DateTime.Now.AddDays(-1) },
+            new Transactions { Description = "Purchase Coffee Beans", Type = "Withdraw", Nominal = 45000, Date = DateTime.Now.AddDays(-2) },
+            new Transactions { Description = "Top-up from Bank Mandiri", Type = "Deposit", Nominal = 200000, Date = DateTime.Now.AddDays(-3) },
+            new Transactions { Description = "Withdrawal to e-Wallet", Type = "Withdraw", Nominal = 100000, Date = DateTime.Now.AddDays(-5) }
+        };
+    }
+
+    private static byte[] ParseBase64WithoutPadding(string base64)
+    {
+        base64 = base64.Replace('-', '+').Replace('_', '/');
+        switch (base64.Length % 4)
+        {
+            case 2: base64 += "=="; break;
+            case 3: base64 += "="; break;
+        }
+        return Convert.FromBase64String(base64);
+    }
+
+    private class Transactions {
+        public string Description { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty; 
+        public double Nominal { get; set; } = 0.0f;
+        public DateTime Date { get; set; } = DateTime.Now;
+    }
+}

@@ -14,16 +14,7 @@
     private string nickname = "Guest";
     @* check if user hasn't login, then navigated to login page *@
     protected override async Task OnInitializedAsync()
-    {
-        // ✅ Check token in browser localStorage
-        var token = await JS.InvokeAsync<string>("localStorage.getItem", "token");
-
-        if (string.IsNullOrEmpty(token))
-        {
-            // ✅ Redirect to login if token missing
-            Navigation.NavigateTo("/login", forceLoad: true);
-        }
-        
+    {   
         try{
             await FetchNickname();
         }
