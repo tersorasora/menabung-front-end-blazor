@@ -14,11 +14,42 @@
 
 <div class="container mt-4">
     <div class="card shadow-sm p-3 mb-4">
-        <h3 class="card-title mb-2">Your Balance</h3>
+        <h3 class="card-title mb-2 fw-bolder">Your Balance</h3>
         <h4 class="text-success fw-bold">@currentBalance.ToString("C", new System.Globalization.CultureInfo("id-ID"))</h4>
     </div>
 
-    <h5 class="mb-3">Recent Transactions</h5>
+    <div class="filter">
+        <div class="month-group mr-4">
+            <span>Month Filter</span>
+            <select @bind="monthValueFilter">
+                <option value="0" selected>All</option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+        </div>
+
+        <div class="year-group">
+            <span>Year Filter</span>
+            <select @bind="yearValueFilter">
+                @for (int year = DateTime.Now.Year; year >= (DateTime.Now.Year - 10); year--)
+                {
+                    <option value="@year">@year</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <h5 class="mb-2 mt-3 fw-bold">Transactions History</h5>
 
     @if (transactions.Count == 0)
     {
@@ -52,6 +83,23 @@
 @code {
     private double currentBalance = 0.0f;
     private List<Transactions> transactions = new List<Transactions>();
+    private List<Transactions> allTransactions = new List<Transactions>();
+    private int selectedMonth = 0;
+    private int monthValueFilter{
+        get => selectedMonth;
+        set{
+            selectedMonth = value;
+            ApplyDateFilter();
+        }
+    }
+    private int selectedYear { get; set; } = DateTime.Now.Year;
+    private int yearValueFilter{
+        get => selectedYear;
+        set{
+            selectedYear = value;
+            ApplyDateFilter();
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -101,26 +149,27 @@
             var json = await response.Content.ReadFromJsonAsync<JsonElement>();
             
             if(json.TryGetProperty("transaction", out var transactionsJson)){
-                transactions = transactionsJson.EnumerateArray().Select(t => new Transactions {
+                allTransactions = transactionsJson.EnumerateArray().Select(t => new Transactions {
                     Description = t.GetProperty("description").GetString() ?? string.Empty,
                     Type = t.GetProperty("transaction_type").GetString() ?? string.Empty,
                     Nominal = t.GetProperty("transaction_nominal").GetDouble(),
                     Date = t.GetProperty("transaction_date").GetDateTime()
                 }).ToList();
+
+                // Initialize transactions with all by default
+                transactions = new List<Transactions>(allTransactions);
             }
         }catch(Exception ex){
             Console.WriteLine($"Error fetching transactions: {ex.Message}");
         }
     }
 
-    private void loadTemp(){
-        transactions = new List<Transactions>
-        {
-            new Transactions { Description = "Top-up from Bank BCA", Type = "Deposit", Nominal = 150000, Date = DateTime.Now.AddDays(-1) },
-            new Transactions { Description = "Purchase Coffee Beans", Type = "Withdraw", Nominal = 45000, Date = DateTime.Now.AddDays(-2) },
-            new Transactions { Description = "Top-up from Bank Mandiri", Type = "Deposit", Nominal = 200000, Date = DateTime.Now.AddDays(-3) },
-            new Transactions { Description = "Withdrawal to e-Wallet", Type = "Withdraw", Nominal = 100000, Date = DateTime.Now.AddDays(-5) }
-        };
+    private void ApplyDateFilter(){
+        if(selectedMonth == 0 ){
+            transactions = allTransactions.Where(t => t.Date.Year == selectedYear).ToList();
+        }else{
+            transactions = allTransactions.Where(t => t.Date.Month == selectedMonth && t.Date.Year == selectedYear).ToList();
+        }
     }
 
     private static byte[] ParseBase64WithoutPadding(string base64)

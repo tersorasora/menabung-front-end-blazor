@@ -2,8 +2,6 @@
 @inject IJSRuntime JS
 
 @code {
-    private bool _initialized;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         // Wait until the app is interactive
@@ -17,7 +15,6 @@
             }
 
             await CheckTokenAsync();
-            _initialized = true;
             StateHasChanged();
         }
     }
