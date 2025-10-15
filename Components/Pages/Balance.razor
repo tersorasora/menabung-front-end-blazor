@@ -18,8 +18,8 @@
         <h4 class="text-success fw-bold">@currentBalance.ToString("C", new System.Globalization.CultureInfo("id-ID"))</h4>
     </div>
 
-    <div class="filter">
-        <div class="month-group mr-4">
+    <div class="filter d-flex flex-row">
+        <div class="month-group">
             <span>Month Filter</span>
             <select @bind="monthValueFilter">
                 <option value="0" selected>All</option>
