@@ -81,6 +81,13 @@
                                 @(t.Type == "Deposit" ? "+" : "-")
                                 @t.Nominal.ToString("C", new System.Globalization.CultureInfo("id-ID"))
                             </span>
+                            <span>
+                                <button class="btn btn-light btn-sm icon-btn text-danger border-0"
+                                    title="Delete Transaction"
+                                    @onclick="() => DeleteTransaction(t.Id)">
+                                    <i class="bi bi-trash"></i>
+                                </button>                            
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -213,6 +220,7 @@
             
             if(json.TryGetProperty("transaction", out var transactionsJson)){
                 allTransactions = transactionsJson.EnumerateArray().Select(t => new Transactions {
+                    Id = t.TryGetProperty("transaction_id", out var idProp) ? idProp.GetInt32() : 0,
                     Description = t.GetProperty("description").GetString() ?? string.Empty,
                     Type = t.GetProperty("transaction_type").GetString() ?? string.Empty,
                     Nominal = t.GetProperty("transaction_nominal").GetDouble(),
@@ -246,7 +254,23 @@
         return Convert.FromBase64String(base64);
     }
 
+    private async Task DeleteTransaction(int id)
+    {
+        Console.WriteLine($"Deleting transaction with ID {id}");
+        var response = await Http.DeleteAsync($"transaction/delete/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            Console.WriteLine("Transaction deleted successfully.");
+            // Optionally refresh list here
+        }
+        else
+        {
+            Console.WriteLine($"Failed to delete transaction. Status: {response.StatusCode}");
+        }
+    }
+
     private class Transactions {
+        public int Id { get; set; }
         public string Description { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty; 
         public double Nominal { get; set; } = 0.0f;
