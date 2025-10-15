@@ -40,6 +40,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xIb21lLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Jobs/BlazorAppTest/Components/Pages/Recap.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSZWNhcC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Jobs/BlazorAppTest/Components/Pages/Transaction.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xUcmFuc2FjdGlvbi5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 

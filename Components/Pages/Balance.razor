@@ -1,5 +1,6 @@
 @page "/balance"
-
+@inject NavigationManager NavManager
+@using BlazorAppTest.Models
 @using System.Net.Http
 @using BlazorAppTest.Components.Layout
 @using System.Text.Json
@@ -7,8 +8,6 @@
 @using Microsoft.VisualBasic
 @inject IJSRuntime JS
 @inject HttpClient Http
-
-<PageTitle>Balance</PageTitle>
 
 <PageTitle>Balance</PageTitle>
 
@@ -46,6 +45,16 @@
                     <option value="@year">@year</option>
                 }
             </select>
+        </div>
+
+        <div class="order-group">
+            <span>Order By</span>
+            <button @onclick="ToggleOrder">@orderingBy</button>
+        </div>
+
+        @* Create a monthly recaps *@
+        <div class="recap-group ms-auto">
+            <button @onclick="createRecap" disabled="@(selectedMonth == 0 || transactions.Count == 0)">Monthly Recap (Coming Soon)</button>
         </div>
     </div>
 
@@ -101,6 +110,59 @@
         }
     }
 
+    private string orderingBy = "Date";
+    private void ToggleOrder(){
+        switch(orderingBy){
+            case "Date":
+                orderingBy = "Nominal";
+                ToggleOrderByNominal();
+                break;
+            case "Nominal":
+                orderingBy = "Type";
+                ToggleOrderByType();
+                break;
+            case "Type":
+                orderingBy = "Date";
+                ToggleOrderByDate();
+                break;
+            default:
+                ToggleOrderByDate();
+                break;
+        }
+    }
+
+    private void ToggleOrderByDate(){
+        transactions = transactions.OrderBy(t => t.Date).ToList();
+    }
+
+    private void ToggleOrderByNominal(){
+        transactions = transactions.OrderBy(t => t.Nominal).ToList();
+    }
+
+    private void ToggleOrderByType(){
+        transactions = transactions.OrderBy(t => t.Type).ToList();
+    }
+
+    private void createRecap(){
+        try{
+            Console.WriteLine($"Creating recap for {selectedMonth}-{selectedYear} with {transactions.Count} transactions.");
+            recapTransactions recap = new recapTransactions();
+            recap.Period = new DateTime(selectedYear, selectedMonth, 1).ToString("MMMM yyyy");
+            recap.TotalIncome = transactions.Where(t => t.Type.ToLower() == "deposit").Sum(t => t.Nominal);
+            recap.TotalExpense = transactions.Where(t => t.Type.ToLower() == "withdraw").Sum(t => t.Nominal);
+            recap.remainderBalance = recap.TotalIncome - recap.TotalExpense;
+
+            // Serialize recap data to JSON for navigation
+            var recapJson = System.Text.Json.JsonSerializer.Serialize(recap);
+            var encoded = Uri.EscapeDataString(recapJson);
+
+            // Navigate to recap page with query parameter
+            NavManager.NavigateTo($"/recap?data={encoded}");
+        }catch(Exception ex){
+            Console.WriteLine($"Error creating recap: {ex.Message}");
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         var token = await JS.InvokeAsync<string>("localStorage.getItem", "token");
@@ -120,6 +182,7 @@
         try{
             await FetchBalance(userID);
             await FetchTransactions(userID);
+            ToggleOrderByDate();
         }catch(Exception ex){
             Console.WriteLine($"Error during initialization: {ex.Message}");
         }
