@@ -63,6 +63,7 @@
     {
         try
         {
+            transactionModel.user_Id = userID;
             Console.WriteLine($"Submitting transaction: {transactionModel.Description}, {transactionModel.Transaction_Type}, {transactionModel.Transaction_Nominal}, {transactionModel.Transaction_Date}");
 
             var request = new HttpRequestMessage(HttpMethod.Post, "transaction/add")
@@ -75,6 +76,7 @@
             if (response.IsSuccessStatusCode)
             {
                 Console.WriteLine("Transaction submitted successfully.");
+                await JS.InvokeVoidAsync("alert", "Transaction submitted successfully.");
                 // Optionally, reset the form or provide user feedback here
                 transactionModel = new TransactionModel(); // Reset form
             }

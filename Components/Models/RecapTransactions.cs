@@ -3,8 +3,8 @@ namespace BlazorAppTest.Models
     public class recapTransactions
     {
         public string Period { get; set; } = string.Empty;
-        public double TotalIncome { get; set; } = 0.0f;
-        public double TotalExpense { get; set; } = 0.0f;
-        public double remainderBalance { get; set; } = 0.0f;
+        public decimal TotalIncome { get; set; } = 0;
+        public decimal TotalExpense { get; set; } = 0;
+        public decimal remainderBalance { get; set; } = 0;
     }
 }

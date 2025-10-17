@@ -97,7 +97,7 @@
 </div>
 
 @code {
-    private double currentBalance = 0.0f;
+    private decimal currentBalance = 0;
     private List<Transactions> transactions = new List<Transactions>();
     private List<Transactions> allTransactions = new List<Transactions>();
     private int selectedMonth = 0;
@@ -185,7 +185,7 @@
 
         if(string.IsNullOrEmpty(token)){
             Console.WriteLine("No Token Found");
-            currentBalance = 0.0f;
+            currentBalance = 0;
             return;
         }
 
@@ -212,7 +212,7 @@
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadFromJsonAsync<JsonElement>();
-            currentBalance = json.GetProperty("balance").GetDouble();
+            currentBalance = json.GetProperty("balance").GetDecimal();
         }
         catch (Exception ex)
         {
@@ -232,7 +232,7 @@
                     Id = t.TryGetProperty("transaction_id", out var idProp) ? idProp.GetInt32() : 0,
                     Description = t.GetProperty("description").GetString() ?? string.Empty,
                     Type = t.GetProperty("transaction_type").GetString() ?? string.Empty,
-                    Nominal = t.GetProperty("transaction_nominal").GetDouble(),
+                    Nominal = t.GetProperty("transaction_nominal").GetDecimal(),
                     Date = t.GetProperty("transaction_date").GetDateTime()
                 }).ToList();
 
@@ -271,7 +271,7 @@
         {
             Console.WriteLine("Transaction deleted successfully.");
             // Optionally refresh list here
-            await refreshTransactions();
+            NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
         }
         else
         {
@@ -279,18 +279,11 @@
         }
     }
 
-    private async Task refreshTransactions(){
-        transactions = new List<Transactions>(allTransactions);
-        ApplyDateFilter();
-        ToggleView();
-        await FetchBalance(userID);
-    }
-
     private class Transactions {
         public int Id { get; set; }
         public string Description { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty; 
-        public double Nominal { get; set; } = 0.0f;
+        public decimal Nominal { get; set; } = 0;
         public DateTime Date { get; set; } = DateTime.Now;
     }
 }
